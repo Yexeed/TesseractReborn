@@ -87,7 +87,6 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\FloatTag;
-use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\LongTag;
@@ -97,7 +96,6 @@ use pocketmine\network\protocol\FullChunkDataPacket;
 use pocketmine\network\protocol\LevelEventPacket;
 use pocketmine\network\protocol\LevelSoundEventPacket;
 use pocketmine\network\protocol\MoveEntityPacket;
-use pocketmine\network\protocol\MovePlayerPacket;
 use pocketmine\network\protocol\SetEntityMotionPacket;
 use pocketmine\network\protocol\SetTimePacket;
 use pocketmine\network\protocol\UpdateBlockPacket;
@@ -1038,7 +1036,7 @@ class Level implements ChunkManager, Metadatable {
 	public function unregisterGenerator(){
 		$size = $this->server->getScheduler()->getAsyncTaskPoolSize();
 		for($i = 0; $i < $size; ++$i){
-			$this->server->getScheduler()->scheduleAsyncTaskToWorker(new GeneratorUnregisterTask($this, $this->generatorInstance), $i);
+			$this->server->getScheduler()->scheduleAsyncTaskToWorker(new GeneratorUnregisterTask($this), $i);
 		}
 	}
 
@@ -1237,6 +1235,7 @@ class Level implements ChunkManager, Metadatable {
 		$this->chunkPackets = [];
 
 		$this->timings->doTick->stopTiming();
+		return true;
 	}
 
 	/**
@@ -3337,36 +3336,40 @@ class Level implements ChunkManager, Metadatable {
 		$this->timings->doChunkGC->stopTiming();
 	}
 
-	/**
-	 * @param string        $metadataKey
-	 * @param MetadataValue $metadataValue
-	 */
+    /**
+     * @param string $metadataKey
+     * @param MetadataValue $metadataValue
+     * @throws \Exception
+     */
 	public function setMetadata($metadataKey, MetadataValue $metadataValue){
 		$this->server->getLevelMetadata()->setMetadata($this, $metadataKey, $metadataValue);
 	}
 
-	/**
-	 * @param string $metadataKey
-	 *
-	 * @return MetadataValue[]|\WeakMap
-	 */
+    /**
+     * @param string $metadataKey
+     *
+     * @return MetadataValue[]
+     * @throws \Exception
+     */
 	public function getMetadata($metadataKey){
 		return $this->server->getLevelMetadata()->getMetadata($this, $metadataKey);
 	}
 
-	/**
-	 * @param string $metadataKey
-	 *
-	 * @return bool
-	 */
+    /**
+     * @param string $metadataKey
+     *
+     * @return bool
+     * @throws \Exception
+     */
 	public function hasMetadata($metadataKey){
 		return $this->server->getLevelMetadata()->hasMetadata($this, $metadataKey);
 	}
 
-	/**
-	 * @param string $metadataKey
-	 * @param Plugin $plugin
-	 */
+    /**
+     * @param string $metadataKey
+     * @param Plugin $plugin
+     * @throws \Exception
+     */
 	public function removeMetadata($metadataKey, Plugin $plugin){
 		$this->server->getLevelMetadata()->removeMetadata($this, $metadataKey, $plugin);
 	}

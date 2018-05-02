@@ -186,7 +186,7 @@ class WoodenButton extends Transparent {
 			$this->getLevel()->setBlock($this, $this, true, false);
 			$this->getLevel()->addSound(new ButtonClickSound($this));
 			$this->activate();
-			$this->getLevel()->scheduleDelayedBlockUpdate($this, 30);
+			$this->getLevel()->scheduleDelayedBlockUpdate($this, 40);
 		}
 
 		return true;

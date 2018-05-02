@@ -54,7 +54,7 @@ class StoneButton extends WoodenButton {
 			$this->getLevel()->setBlock($this, $this, true, false);
 			$this->getLevel()->addSound(new ButtonClickSound($this));
 			$this->activate();
-			$this->getLevel()->scheduleDelayedBlockUpdate($this, 40);
+			$this->getLevel()->scheduleDelayedBlockUpdate($this, 20);
 		}
 
 		return true;

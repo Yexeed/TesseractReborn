@@ -32,24 +32,23 @@ class BlockPlaceSound extends GenericSound {
 	/**
 	 * BlockPlaceSound constructor.
 	 *
-	 * @param Block $b
+	 * @param Block $block
 	 */
-	public function __construct(Block $b){
-		parent::__construct($b, LevelSoundEventPacket::SOUND_PLACE);
-		$this->data = $b->getId();
+	public function __construct(Block $block){
+		parent::__construct($block, LevelSoundEventPacket::SOUND_PLACE, 1);
+		$this->data = $block->getId();
 	}
 
-	/**
-	 * @return LevelEventPacket
-	 */
+    /**
+     * @return LevelSoundEventPacket
+     */
 	public function encode(){
-		$pk = new LevelEventPacket;
-		$pk->evid = $this->id;
-		$pk->x = $this->x;
-		$pk->y = $this->y;
-		$pk->z = $this->z;
-		$pk->data = $this->data;
+        $pk = new LevelSoundEventPacket;
+        $pk->sound = $this->id;
+        $pk->pitch = 1;
+        $pk->extraData = $this->data;
+        list($pk->x, $pk->y, $pk->z) = [$this->x, $this->y, $this->z];
 
-		return $pk;
+        return $pk;
 	}
 }
