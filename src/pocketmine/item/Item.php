@@ -1006,20 +1006,6 @@ class Item implements ItemIds, \JsonSerializable {
 	}
 
 	/**
-	 * @param $name
-	 *
-	 * @return null
-	 */
-	public function getNamedTagEntry($name){
-		$tag = $this->getNamedTag();
-		if($tag !== null){
-			return isset($tag->{$name}) ? $tag->{$name} : null;
-		}
-
-		return null;
-	}
-
-	/**
 	 * @param string[] $lines
 	 *
 	 * @return $this
