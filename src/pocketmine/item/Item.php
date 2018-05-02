@@ -25,6 +25,7 @@
 
 namespace pocketmine\item;
 
+use pocketmine\nbt\tag\NamedTag;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\block\Block;
@@ -618,6 +619,30 @@ class Item implements ItemIds, \JsonSerializable {
 		}
 	}
 
+    /**
+     * @param NamedTag $newTag
+     */
+    public function setNamedTagEntry(NamedTag $newTag){
+        if(!$this->hasCompoundTag()){
+            $tag = new CompoundTag();
+        }else{
+            $tag = $this->getNamedTag();
+        }
+        $tag->{$newTag->getName()} = $newTag;
+    }
+
+    /**
+     * @param string $name
+     * @return null
+     */
+    public function getNamedTagEntry(string $name){
+        $tag = $this->getNamedTag();
+        if($tag !== null){
+            return isset($tag->{$name}) ? $tag->{$name} : null;
+        }
+
+        return null;
+    }
 	/**
 	 * @param int $meta
 	 */
