@@ -42,6 +42,10 @@ class Position extends Vector3 {
 		$this->level = $level;
 	}
 
+	public function asPosition(): Position{
+	    return clone $this;
+    }
+
 	/**
 	 * @param int|Vector3 $x
 	 * @param int         $y
