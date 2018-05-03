@@ -147,6 +147,8 @@ class Block extends Position implements BlockIds, Metadatable {
 			self::$list[self::ACACIA_DOOR_BLOCK] = AcaciaDoor::class;
 			self::$list[self::DARK_OAK_DOOR_BLOCK] = DarkOakDoor::class;
 			self::$list[self::LADDER] = Ladder::class;
+			self::$list[self::CONCRETE] = Concrete::class;
+			self::$list[self::CONCRETE_POWDER] = ConcretePowder::class;
 
 			self::$list[self::COBBLESTONE_STAIRS] = CobblestoneStairs::class;
 			self::$list[self::WALL_SIGN] = WallSign::class;

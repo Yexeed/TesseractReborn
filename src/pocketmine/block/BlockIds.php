@@ -295,6 +295,9 @@ interface BlockIds {
 	const END_STONE_BRICKS = 206;
 	const END_ROD = 208;
 
+    const CONCRETE = 236;
+    const CONCRETE_POWDER = 237;
+
 	const CHORUS_PLANT = 240;
 
 	const PODZOL = 243;
