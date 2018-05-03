@@ -5,6 +5,7 @@ namespace pocketmine\command\defaults;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use pocketmine\network\protocol\Info;
+use pocketmine\utils\TextFormat;
 
 class MakeServerCommand extends VanillaCommand {
 
@@ -34,48 +35,71 @@ class MakeServerCommand extends VanillaCommand {
 			return false;
 		}
 
-		$server = $sender->getServer();
-		$pharPath = Server::getInstance()->getPluginPath() . DIRECTORY_SEPARATOR . "Tesseract" . DIRECTORY_SEPARATOR . $server->getName() . "_" . $server->getPocketMineVersion() . ".phar";
-		if(file_exists($pharPath)){
-			$sender->sendMessage("Phar file already exists, overwriting...");
-			@unlink($pharPath);
-		}
-		$phar = new \Phar($pharPath);
-		$phar->setMetadata([
-			"name" => $server->getName(),
-			"version" => $server->getPocketMineVersion(),
-			"api" => $server->getApiVersion(),
-			"minecraft" => $server->getVersion(),
-			"protocol" => Info::CURRENT_PROTOCOL,
-			"creationDate" => time()
-		]);
-		$phar->setStub('<?php define("pocketmine\\\\PATH", "phar://". __FILE__ ."/"); require_once("phar://". __FILE__ ."/src/pocketmine/PocketMine.php");  __HALT_COMPILER();');
-		$phar->setSignatureAlgorithm(\Phar::SHA1);
-		$phar->startBuffering();
-
-		$filePath = substr(\pocketmine\PATH, 0, 7) === "phar://" ? \pocketmine\PATH : realpath(\pocketmine\PATH) . "/";
-		$filePath = rtrim(str_replace("\\", "/", $filePath), "/") . "/";
-		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath . "src")) as $file){
-			$path = ltrim(str_replace(["\\", $filePath], ["/", ""], $file), "/");
-			if($path{0} === "." or strpos($path, "/.") !== false or substr($path, 0, 4) !== "src/"){
-				continue;
-			}
-			$phar->addFile($file, $path);
-			$sender->sendMessage("[Tesseract] Adding $path");
-		}
-		foreach($phar as $file => $finfo){
-			/** @var \PharFileInfo $finfo */
-			if($finfo->getSize() > (1024 * 512)){
-				$finfo->compress(\Phar::GZ);
-			}
-		}
-		if(!isset($args[0]) or (isset($args[0]) and $args[0] != "nogz")){
-			$phar->compressFiles(\Phar::GZ);
-		}
-		$phar->stopBuffering();
-
-		$sender->sendMessage($server->getName() . " " . $server->getPocketMineVersion() . " Phar file has been created on " . $pharPath);
-
-		return true;
+        if(strpos(\pocketmine\PATH, "phar://") === 0){
+            $sender->sendMessage(TextFormat::RED . "This command can only be used on a server running from source code");
+            return true;
+        }
+        $server = $sender->getServer();
+        $pharPath = $server->getPluginPath() . DIRECTORY_SEPARATOR . "Tesseract" . DIRECTORY_SEPARATOR . $server->getName() . "_" . $server->getPocketMineVersion() . ".phar";
+        $metadata = [
+            "name" => $server->getName(),
+            "version" => $server->getPocketMineVersion(),
+            "api" => $server->getApiVersion(),
+            "minecraft" => $server->getVersion(),
+            "creationDate" => time(),
+            "protocol" => Info::CURRENT_PROTOCOL
+        ];
+        $stub = '<?php require_once("phar://". __FILE__ ."/src/pocketmine/PocketMine.php");  __HALT_COMPILER();';
+        $filePath = realpath(\pocketmine\PATH) . DIRECTORY_SEPARATOR;
+        $filePath = rtrim($filePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $this->buildPhar($sender, $pharPath, $filePath, ['src'], $metadata, $stub, \Phar::SHA1);
+        $sender->sendMessage($server->getName() . " " . $server->getPocketMineVersion() . " Phar file has been created on " . $pharPath);
+        return true;
 	}
+    private function preg_quote_array(array $strings, string $delim = null) : array{
+        return array_map(function(string $str) use ($delim) : string{ return preg_quote($str, $delim); }, $strings);
+    }
+    private function buildPhar(CommandSender $sender, string $pharPath, string $basePath, array $includedPaths, array $metadata, string $stub, int $signatureAlgo = \Phar::SHA1){
+        if(file_exists($pharPath)){
+            $sender->sendMessage("Phar file already exists, overwriting...");
+            try{
+                \Phar::unlinkArchive($pharPath);
+            }catch(\PharException $e){
+                //unlinkArchive() doesn't like dodgy phars
+                unlink($pharPath);
+            }
+        }
+        $sender->sendMessage("[Tesseract] Adding files...");
+        $start = microtime(true);
+        $phar = new \Phar($pharPath);
+        $phar->setMetadata($metadata);
+        $phar->setStub($stub);
+        $phar->setSignatureAlgorithm($signatureAlgo);
+        $phar->startBuffering();
+        //If paths contain any of these, they will be excluded
+        $excludedSubstrings = [
+            DIRECTORY_SEPARATOR . ".", //"Hidden" files, git information etc
+            realpath($pharPath) //don't add the phar to itself
+        ];
+        $regex = sprintf('/^(?!.*(%s))^%s(%s).*/i',
+            implode('|', $this->preg_quote_array($excludedSubstrings, '/')), //String may not contain any of these substrings
+            preg_quote($basePath, '/'), //String must start with this path...
+            implode('|', $this->preg_quote_array($includedPaths, '/')) //... and must be followed by one of these relative paths, if any were specified. If none, this will produce a null capturing group which will allow anything.
+        );
+        $directory = new \RecursiveDirectoryIterator($basePath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS | \FilesystemIterator::CURRENT_AS_PATHNAME); //can't use fileinfo because of symlinks
+        $iterator = new \RecursiveIteratorIterator($directory);
+        $regexIterator = new \RegexIterator($iterator, $regex);
+        $count = count($phar->buildFromIterator($regexIterator, $basePath));
+        $sender->sendMessage("[Tesseract] Added $count files");
+        $sender->sendMessage("[Tesseract] Checking for compressible files...");
+        foreach($phar as $file => $finfo){
+            /** @var \PharFileInfo $finfo */
+            if($finfo->getSize() > (1024 * 512)){
+                $sender->sendMessage("[Tesseract] Compressing " . $finfo->getFilename());
+                $finfo->compress(\Phar::GZ);
+            }
+        }
+        $phar->stopBuffering();
+        $sender->sendMessage("[Tesseract] Done in " . round(microtime(true) - $start, 3) . "s");
+    }
 }
