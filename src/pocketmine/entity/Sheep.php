@@ -23,7 +23,7 @@ namespace pocketmine\entity;
 
 use pocketmine\block\Wool;
 use pocketmine\nbt\tag\ByteTag;
-use pocketmine\network\protocol\AddEntityPacket;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\Player;
 use pocketmine\item\Item as ItemItem;
 use pocketmine\level\Level;

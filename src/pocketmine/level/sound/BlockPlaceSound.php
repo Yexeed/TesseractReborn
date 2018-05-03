@@ -22,8 +22,8 @@
 namespace pocketmine\level\sound;
 
 use pocketmine\block\Block;
-use pocketmine\network\protocol\LevelEventPacket;
-use pocketmine\network\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
 class BlockPlaceSound extends GenericSound {
 

@@ -21,7 +21,7 @@
 
 namespace pocketmine;
 
-use pocketmine\network\protocol\Info;
+use pocketmine\network\mcpe\protocol\Info;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginLoadOrder;
 use pocketmine\utils\Utils;

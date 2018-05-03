@@ -21,9 +21,9 @@
 
 namespace pocketmine\entity;
 
-use pocketmine\network\protocol\AddEntityPacket;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\Player;
-use pocketmine\network\protocol\MobEquipmentPacket;
+use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\item\Item as ItemItem;
 
 class WitherSkeleton extends Monster implements ProjectileSource {
