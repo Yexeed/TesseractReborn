@@ -26,8 +26,8 @@ use pocketmine\level\Level;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Player;
 use pocketmine\item\Item as ItemItem;
-use pocketmine\network\protocol\EntityEventPacket;
-use pocketmine\network\protocol\AddEntityPacket;
+use pocketmine\network\mcpe\protocol\EntityEventPacket;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
 
 
 class FishingHook extends Projectile {
