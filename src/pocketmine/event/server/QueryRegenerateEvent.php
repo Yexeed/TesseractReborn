@@ -267,7 +267,7 @@ class QueryRegenerateEvent extends ServerEvent {
 	}
 
 	/**
-	 * @return EventName|string
+	 * @return string
 	 */
 	public function getName(){
 		return "QueryRegenerateEvent";

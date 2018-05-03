@@ -243,10 +243,9 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
 	public function setName($name){
 
 
-			$info = $this->server->getQueryInformation();
-			$pc = $info->getMaxPlayerCount();
-			$poc = $info->getPlayerCount();
-
+        $info = $this->server->getQueryInformation();
+        $pc = $info->getMaxPlayerCount();
+        $poc = $info->getPlayerCount();
 		$this->interface->sendOption("name",
 			"MCPE;" . rtrim(addcslashes($name, ";"), '\\') . ";" .
 			Info::CURRENT_PROTOCOL . ";" .

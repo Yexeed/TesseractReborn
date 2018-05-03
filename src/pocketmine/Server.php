@@ -1294,6 +1294,10 @@ class Server {
 			$player->checkNetwork();
 		}
 
+		if(($this->tickCounter & 0b111111111) === 0){
+		    $this->updateQuery();
+        }
+
 		if(($this->tickCounter & 0b1111) === 0){
 			$this->titleTick();
 			$this->currentTPS = 20;

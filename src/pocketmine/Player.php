@@ -1405,6 +1405,8 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 
 		$this->level->getWeather()->sendWeather($this);
 
+		$this->server->updateQuery();
+
 		if($this->getHealth() <= 0){
 			$this->sendRespawnPacket($this->getSpawn());
 		}
@@ -2893,6 +2895,8 @@ class Player extends Human implements CommandSender, InventoryHolder, ChunkLoade
 			$this->loadQueue = [];
 			$this->hasSpawned = [];
 			$this->spawnPosition = null;
+
+			$this->server->updateQuery();
 
 		}
 
