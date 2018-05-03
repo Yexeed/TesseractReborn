@@ -245,7 +245,6 @@ class Server {
 	private $levels = [];
 	/** @var Level */
 	private $levelDefault = null;
-	private $aboutContent = "";
 
 	/**
 	 * @param \ClassLoader    $autoloader
@@ -663,23 +662,22 @@ class Server {
 	 */
 	public function isExtensionInstalled($type){
 		switch($type){
-
 			case 'OpenSSL':
 				if(!extension_loaded("openssl")){
-					return "false";
-					$this->setConfigBool("online-mode", false);
-
-				}else{
-					return "true";
-					break;
-				}
-			case '$type';
-				if(!extension_loaded($type)){
-					return "false";
-
+                    $this->setConfigBool("online-mode", false);
+                    return "false";
 				}else{
 					return "true";
 				}
+				break;
+            default:
+                if(!extension_loaded($type)){
+                    return "false";
+
+                }else{
+                    return "true";
+                }
+                break;
 		}
 	}
 
@@ -949,16 +947,17 @@ class Server {
 		return $this->pluginManager;
 	}
 
-	/**
-	 * Generates a new level if it does not exists
-	 *
-	 * @param string $name
-	 * @param int    $seed
-	 * @param string $generator Class name that extends pocketmine\level\generator\Noise
-	 * @param array  $options
-	 *
-	 * @return bool
-	 */
+    /**
+     * Generates a new level if it does not exists
+     *
+     * @param string $name
+     * @param int $seed
+     * @param string $generator Class name that extends pocketmine\level\generator\Noise
+     * @param array $options
+     *
+     * @return bool
+     * @throws \Exception
+     */
 	public function generateLevel($name, $seed = null, $generator = null, $options = []){
 		if(trim($name) === "" or $this->isLevelGenerated($name)){
 			return false;
@@ -1151,7 +1150,7 @@ class Server {
 		}*/
 
 		$this->getPluginManager()->callEvent($ev = new event\server\ServerShutdownEvent());
-		if($ev->isCancelled(true)) return;
+		if($ev->isCancelled()) return;
 
 		$this->isRunning = false;
 		if($msg != ""){
@@ -2180,11 +2179,11 @@ class Server {
 		return null;
 	}
 
-	/**
-	 * @param string $name
-	 *
-	 * @return PluginIdentifiableCommand
-	 */
+    /**
+     * @param string $name
+     *
+     * @return null|command\Command
+     */
 	public function getPluginCommand($name){
 		if(($command = $this->commandMap->getCommand($name)) instanceof PluginIdentifiableCommand){
 			return $command;
