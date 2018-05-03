@@ -54,11 +54,12 @@ class Location extends Position {
 	 * @return Location
 	 */
 	public static function fromObject(Vector3 $pos, Level $level = null, $yaw = 0.0, $pitch = 0.0){
+	    //PUKAN BOMBANUL
 		return new Location($pos->x, $pos->y, $pos->z, $yaw, $pitch, ($level === null) ? (($pos instanceof Position) ? $pos->level : null) : $level);
 	}
 
 	public function asLocation(){
-	    return clone $this;
+	    return new Location($this->x, $this->y, $this->z, $this->pitch, $this->yaw, $this->level);
     }
 
 	/**

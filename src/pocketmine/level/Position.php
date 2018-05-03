@@ -43,7 +43,7 @@ class Position extends Vector3 {
 	}
 
 	public function asPosition(): Position{
-	    return clone $this;
+	    return new Position($this->x, $this->y, $this->z, $this->level);
     }
 
 	/**

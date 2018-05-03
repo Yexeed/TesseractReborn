@@ -72,7 +72,6 @@ class Vector3 {
 				return -1;
 		}
 	}
-
 	/**
 	 * @param Random $random
 	 *
@@ -81,7 +80,9 @@ class Vector3 {
 	public static function createRandomDirection(Random $random){
 		return VectorMath::getDirection3D($random->nextFloat() * 2 * pi(), $random->nextFloat() * 2 * pi());
 	}
-
+    public function asVector3(): Vector3{
+	    return new Vector3($this->x, $this->y, $this->z);
+    }
 	/**
 	 * @return int
 	 */
