@@ -298,20 +298,22 @@ class AxisAlignedBB {
 		return $z;
 	}
 
-	/**
-	 * @param AxisAlignedBB $bb
-	 *
-	 * @return bool
-	 */
-	public function intersectsWith(AxisAlignedBB $bb){
-		if($bb->maxX > $this->minX and $bb->minX < $this->maxX){
-			if($bb->maxY > $this->minY and $bb->minY < $this->maxY){
-				return $bb->maxZ > $this->minZ and $bb->minZ < $this->maxZ;
-			}
-		}
-
-		return false;
-	}
+    /**
+     * Returns whether any part of the specified AABB is inside (intersects with) this one.
+     *
+     * @param AxisAlignedBB $bb
+     * @param float         $epsilon
+     *
+     * @return bool
+     */
+    public function intersectsWith(AxisAlignedBB $bb, float $epsilon = 0.00001) : bool{
+        if($bb->maxX - $this->minX > $epsilon and $this->maxX - $bb->minX > $epsilon){
+            if($bb->maxY - $this->minY > $epsilon and $this->maxY - $bb->minY > $epsilon){
+                return $bb->maxZ - $this->minZ > $epsilon and $this->maxZ - $bb->minZ > $epsilon;
+            }
+        }
+        return false;
+    }
 
 	/**
 	 * @param Vector3 $vector
@@ -375,31 +377,15 @@ class AxisAlignedBB {
 		}
 
 		$vector = null;
+        $distance = PHP_INT_MAX;
 
 
-		if($v1 !== null and ($vector === null or $pos1->distanceSquared($v1) < $pos1->distanceSquared($vector))){
-			$vector = $v1;
-		}
-
-		if($v2 !== null and ($vector === null or $pos1->distanceSquared($v2) < $pos1->distanceSquared($vector))){
-			$vector = $v2;
-		}
-
-		if($v3 !== null and ($vector === null or $pos1->distanceSquared($v3) < $pos1->distanceSquared($vector))){
-			$vector = $v3;
-		}
-
-		if($v4 !== null and ($vector === null or $pos1->distanceSquared($v4) < $pos1->distanceSquared($vector))){
-			$vector = $v4;
-		}
-
-		if($v5 !== null and ($vector === null or $pos1->distanceSquared($v5) < $pos1->distanceSquared($vector))){
-			$vector = $v5;
-		}
-
-		if($v6 !== null and ($vector === null or $pos1->distanceSquared($v6) < $pos1->distanceSquared($vector))){
-			$vector = $v6;
-		}
+        foreach([$v1, $v2, $v3, $v4, $v5, $v6] as $v) {
+            if ($v !== null and ($d = $pos1->distanceSquared($v)) < $distance) {
+                $vector = $v;
+                $distance = $d;
+            }
+        }
 
 		if($vector === null){
 			return null;

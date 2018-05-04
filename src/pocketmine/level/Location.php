@@ -37,12 +37,9 @@ class Location extends Position {
 	 * @param Level $level
 	 */
 	public function __construct($x = 0, $y = 0, $z = 0, $yaw = 0.0, $pitch = 0.0, Level $level = null){
-		$this->x = $x;
-		$this->y = $y;
-		$this->z = $z;
 		$this->yaw = $yaw;
 		$this->pitch = $pitch;
-		$this->level = $level;
+		parent::__construct($x, $y, $z, $level);
 	}
 
 	/**
@@ -58,7 +55,12 @@ class Location extends Position {
 		return new Location($pos->x, $pos->y, $pos->z, $yaw, $pitch, ($level === null) ? (($pos instanceof Position) ? $pos->level : null) : $level);
 	}
 
-	public function asLocation(){
+    /**
+     * Return a Location instance
+     *
+     * @return Location
+     */
+    public function asLocation(){
 	    return new Location($this->x, $this->y, $this->z, $this->pitch, $this->yaw, $this->level);
     }
 

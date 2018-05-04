@@ -80,6 +80,12 @@ class Vector3 {
 	public static function createRandomDirection(Random $random){
 		return VectorMath::getDirection3D($random->nextFloat() * 2 * pi(), $random->nextFloat() * 2 * pi());
 	}
+
+    /**
+     * Return a Vector3 instance
+     *
+     * @return Vector3
+     */
     public function asVector3(): Vector3{
 	    return new Vector3($this->x, $this->y, $this->z);
     }
@@ -123,41 +129,6 @@ class Vector3 {
 	 */
 	public function getFloorZ(){
 		return (int) floor($this->z);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getRight(){
-		return $this->x;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getUp(){
-		return $this->y;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getForward(){
-		return $this->z;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getSouth(){
-		return $this->x;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getWest(){
-		return $this->z;
 	}
 
 	/**
@@ -438,7 +409,7 @@ class Vector3 {
 	 * @param $y
 	 * @param $z
 	 *
-	 * @return Vector3
+	 * @return $this
 	 */
 	public function setComponents($x, $y, $z){
 		$this->x = $x;

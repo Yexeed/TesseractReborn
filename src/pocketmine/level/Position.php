@@ -36,13 +36,16 @@ class Position extends Vector3 {
 	 * @param Level $level
 	 */
 	public function __construct($x = 0, $y = 0, $z = 0, Level $level = null){
-		$this->x = $x;
-		$this->y = $y;
-		$this->z = $z;
 		$this->level = $level;
+		parent::__construct($x, $y, $z);
 	}
 
-	public function asPosition(): Position{
+    /**
+     * Return a Position instance
+     *
+     * @return Position
+     */
+    public function asPosition(): Position{
 	    return new Position($this->x, $this->y, $this->z, $this->level);
     }
 
