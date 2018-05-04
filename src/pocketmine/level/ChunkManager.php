@@ -80,15 +80,6 @@ interface ChunkManager {
 	public function getBlockLightAt(int $x, int $y, int $z) : int;
 
 	/**
-	 * Updates the light around the block
-	 *
-	 * @param $x
-	 * @param $y
-	 * @param $z
-	 */
-	public function updateBlockLight(int $x, int $y, int $z);
-
-	/**
 	 * Sets the raw block light level.
 	 *
 	 * @param int $x
@@ -119,4 +110,22 @@ interface ChunkManager {
 	 * @return int|string
 	 */
 	public function getSeed();
+
+    /**
+     * Returns the height of the world
+     * @return int
+     */
+    public function getWorldHeight() : int;
+
+    /**
+     * Returns whether the specified coordinates are within the valid world boundaries, taking world format limitations
+     * into account.
+     *
+     * @param float $x
+     * @param float $y
+     * @param float $z
+     *
+     * @return bool
+     */
+    public function isInWorld(float $x, float $y, float $z) : bool;
 }

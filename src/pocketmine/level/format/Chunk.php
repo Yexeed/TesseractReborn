@@ -404,6 +404,26 @@ class Chunk {
 		}
 	}
 
+    /**
+     * Recalculates the heightmap for the block column at the specified X/Z chunk coordinates
+     *
+     * @param int $x 0-15
+     * @param int $z 0-15
+     *
+     * @return int New calculated heightmap value (0-256 inclusive)
+     */
+    public function recalculateHeightMapColumn(int $x, int $z) : int{
+        $max = $this->getHighestBlockAt($x, $z);
+        for($y = $max; $y >= 0; --$y){
+            if(Block::$lightFilter[$id = $this->getBlockId($x, $y, $z)] > 1){
+                break;
+            }
+        }
+
+        $this->setHeightMap($x, $z, $y + 1);
+        return $y + 1;
+    }
+
 	/**
 	 * Returns the Y coordinate of the highest non-air block at the specified X/Z chunk block coordinates
 	 *

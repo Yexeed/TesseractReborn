@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\level;
 
-use pocketmine\block\Block;
 use pocketmine\level\format\Chunk;
-use pocketmine\math\Vector3;
 
 class SimpleChunkManager implements ChunkManager {
 
@@ -33,24 +31,24 @@ class SimpleChunkManager implements ChunkManager {
 	protected $chunks = [];
 
 	protected $seed;
-	protected $waterHeight = 0;
+	protected $worldHeight;
 
-	/**
-	 * SimpleChunkManager constructor.
-	 *
-	 * @param     $seed
-	 * @param int $waterHeight
-	 */
-	public function __construct($seed, $waterHeight = 0){
+    /**
+     * SimpleChunkManager constructor.
+     *
+     * @param     $seed
+     * @param int $worldHeight
+     */
+	public function __construct($seed, $worldHeight = Level::Y_MAX){
 		$this->seed = $seed;
-		$this->waterHeight = $waterHeight;
+		$this->worldHeight = $worldHeight;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getWaterHeight() : int{
-		return $this->waterHeight;
+	public function getWorldHeight() : int{
+		return $this->worldHeight;
 	}
 
 	/**
@@ -109,65 +107,6 @@ class SimpleChunkManager implements ChunkManager {
 	}
 
 	/**
-	 * Updates the light around the block
-	 *
-	 * @param $x
-	 * @param $y
-	 * @param $z
-	 */
-	public function updateBlockLight(int $x, int $y, int $z){
-		$lightPropagationQueue = new \SplQueue();
-		$lightRemovalQueue = new \SplQueue();
-		$visited = [];
-		$removalVisited = [];
-
-		$oldLevel = $this->getBlockLightAt($x, $y, $z);
-		$newLevel = (int) Block::$light[$this->getBlockIdAt($x, $y, $z)];
-
-		if($oldLevel !== $newLevel){
-			$this->setBlockLightAt($x, $y, $z, $newLevel);
-
-			if($newLevel < $oldLevel){
-				$removalVisited[Level::blockHash($x, $y, $z)] = true;
-				$lightRemovalQueue->enqueue([new Vector3($x, $y, $z), $oldLevel]);
-			}else{
-				$visited[Level::blockHash($x, $y, $z)] = true;
-				$lightPropagationQueue->enqueue(new Vector3($x, $y, $z));
-			}
-		}
-
-		while(!$lightRemovalQueue->isEmpty()){
-			/** @var Vector3 $node */
-			$val = $lightRemovalQueue->dequeue();
-			$node = $val[0];
-			$lightLevel = $val[1];
-
-			$this->computeRemoveBlockLight($node->x - 1, $node->y, $node->z, $lightLevel, $lightRemovalQueue, $lightPropagationQueue, $removalVisited, $visited);
-			$this->computeRemoveBlockLight($node->x + 1, $node->y, $node->z, $lightLevel, $lightRemovalQueue, $lightPropagationQueue, $removalVisited, $visited);
-			$this->computeRemoveBlockLight($node->x, $node->y - 1, $node->z, $lightLevel, $lightRemovalQueue, $lightPropagationQueue, $removalVisited, $visited);
-			$this->computeRemoveBlockLight($node->x, $node->y + 1, $node->z, $lightLevel, $lightRemovalQueue, $lightPropagationQueue, $removalVisited, $visited);
-			$this->computeRemoveBlockLight($node->x, $node->y, $node->z - 1, $lightLevel, $lightRemovalQueue, $lightPropagationQueue, $removalVisited, $visited);
-			$this->computeRemoveBlockLight($node->x, $node->y, $node->z + 1, $lightLevel, $lightRemovalQueue, $lightPropagationQueue, $removalVisited, $visited);
-		}
-
-		while(!$lightPropagationQueue->isEmpty()){
-			/** @var Vector3 $node */
-			$node = $lightPropagationQueue->dequeue();
-
-			$lightLevel = $this->getBlockLightAt($node->x, $node->y, $node->z) - (int) Block::$lightFilter[$this->getBlockIdAt($node->x, $node->y, $node->z)];
-
-			if($lightLevel >= 1){
-				$this->computeSpreadBlockLight($node->x - 1, $node->y, $node->z, $lightLevel, $lightPropagationQueue, $visited);
-				$this->computeSpreadBlockLight($node->x + 1, $node->y, $node->z, $lightLevel, $lightPropagationQueue, $visited);
-				$this->computeSpreadBlockLight($node->x, $node->y - 1, $node->z, $lightLevel, $lightPropagationQueue, $visited);
-				$this->computeSpreadBlockLight($node->x, $node->y + 1, $node->z, $lightLevel, $lightPropagationQueue, $visited);
-				$this->computeSpreadBlockLight($node->x, $node->y, $node->z - 1, $lightLevel, $lightPropagationQueue, $visited);
-				$this->computeSpreadBlockLight($node->x, $node->y, $node->z + 1, $lightLevel, $lightPropagationQueue, $visited);
-			}
-		}
-	}
-
-	/**
 	 * Gets the raw block light level
 	 *
 	 * @param int $x
@@ -216,59 +155,6 @@ class SimpleChunkManager implements ChunkManager {
 	}
 
 	/**
-	 * @param           $x
-	 * @param           $y
-	 * @param           $z
-	 * @param           $currentLight
-	 * @param \SplQueue $queue
-	 * @param \SplQueue $spreadQueue
-	 * @param array     $visited
-	 * @param array     $spreadVisited
-	 */
-	private function computeRemoveBlockLight($x, $y, $z, $currentLight, \SplQueue $queue, \SplQueue $spreadQueue, array &$visited, array &$spreadVisited){
-		$current = $this->getBlockLightAt($x, $y, $z);
-
-		if($current !== 0 and $current < $currentLight){
-			$this->setBlockLightAt($x, $y, $z, 0);
-
-			if(!isset($visited[$index = Level::blockHash($x, $y, $z)])){
-				$visited[$index] = true;
-				if($current > 1){
-					$queue->enqueue([new Vector3($x, $y, $z), $current]);
-				}
-			}
-		}elseif($current >= $currentLight){
-			if(!isset($spreadVisited[$index = Level::blockHash($x, $y, $z)])){
-				$spreadVisited[$index] = true;
-				$spreadQueue->enqueue(new Vector3($x, $y, $z));
-			}
-		}
-	}
-
-	/**
-	 * @param           $x
-	 * @param           $y
-	 * @param           $z
-	 * @param           $currentLight
-	 * @param \SplQueue $queue
-	 * @param array     $visited
-	 */
-	private function computeSpreadBlockLight($x, $y, $z, $currentLight, \SplQueue $queue, array &$visited){
-		$current = $this->getBlockLightAt($x, $y, $z);
-
-		if($current < $currentLight){
-			$this->setBlockLightAt($x, $y, $z, $currentLight);
-
-			if(!isset($visited[$index = Level::blockHash($x, $y, $z)])){
-				$visited[$index] = true;
-				if($currentLight > 1){
-					$queue->enqueue(new Vector3($x, $y, $z));
-				}
-			}
-		}
-	}
-
-	/**
 	 * @param int   $chunkX
 	 * @param int   $chunkZ
 	 * @param Chunk $chunk
@@ -294,4 +180,22 @@ class SimpleChunkManager implements ChunkManager {
 	public function getSeed(){
 		return $this->seed;
 	}
+
+    /**
+     * Returns whether the specified coordinates are within the valid world boundaries, taking world format limitations
+     * into account.
+     *
+     * @param float $x
+     * @param float $y
+     * @param float $z
+     *
+     * @return bool
+     */
+    public function isInWorld(float $x, float $y, float $z) : bool{
+        return (
+            $x <= INT32_MAX and $x >= INT32_MIN and
+            $y < $this->worldHeight and $y >= 0 and
+            $z <= INT32_MAX and $z >= INT32_MIN
+        );
+    }
 }
