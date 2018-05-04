@@ -691,6 +691,9 @@ abstract class Entity extends Location implements Metadatable {
 			if(isset($this->namedtag->CustomNameVisible)){
 				$this->setNameTagVisible($this->namedtag["CustomNameVisible"] > 0);
 			}
+            if(isset($this->namedtag->CustomNameAlwaysVisible)){
+                $this->setNameTagAlwaysVisible($this->namedtag["CustomNameAlwaysVisible"] > 0);
+            }
 		}
 
 		$this->scheduleUpdate();
@@ -1080,9 +1083,11 @@ abstract class Entity extends Location implements Metadatable {
 			if($this->getNameTag() !== ""){
 				$this->namedtag->CustomName = new StringTag("CustomName", $this->getNameTag());
 				$this->namedtag->CustomNameVisible = new StringTag("CustomNameVisible", $this->isNameTagVisible());
+                $this->namedtag->CustomNameAlwaysVisible = new StringTag("CustomNameAlwaysVisible", $this->isNameTagAlwaysVisible());
 			}else{
 				unset($this->namedtag->CustomName);
 				unset($this->namedtag->CustomNameVisible);
+				unset($this->namedtag->CustomNameAlwaysVisible);
 			}
 		}
 

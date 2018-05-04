@@ -41,7 +41,6 @@ use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
-use pocketmine\network\mcpe\protocol\RemoveEntityPacket;
 use pocketmine\Player;
 use pocketmine\utils\UUID;
 
@@ -365,11 +364,12 @@ class Human extends Creature implements ProjectileSource, InventoryHolder {
 		$this->attributeMap->getAttribute(Attribute::ABSORPTION)->setValue($absorption);
 	}
 
-	/**
-	 * @param int $tickDiff
-	 *
-	 * @return bool
-	 */
+    /**
+     * @param int $tickDiff
+     *
+     * @return bool
+     * @throws \Exception
+     */
 	public function entityBaseTick($tickDiff = 1){
 		$hasUpdate = parent::entityBaseTick($tickDiff);
 
@@ -606,9 +606,10 @@ class Human extends Creature implements ProjectileSource, InventoryHolder {
 		return $this->xpSeed;
 	}
 
-	/**
-	 * @param Player $player
-	 */
+    /**
+     * @param Player $player
+     * @throws \ReflectionException
+     */
 	public function spawnTo(Player $player){
 		if(strlen($this->skin) < 64 * 32 * 4){
 			$e = new \InvalidStateException((new \ReflectionClass($this))->getShortName() . " must have a valid skin set");
