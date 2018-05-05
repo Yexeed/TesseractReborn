@@ -51,6 +51,7 @@ class SimpleChunkManager implements ChunkManager {
 		return $this->worldHeight;
 	}
 
+
 	/**
 	 * Sets the raw block id.
 	 *
