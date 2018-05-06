@@ -25,6 +25,7 @@
 
 namespace pocketmine\item;
 
+use pocketmine\block\BlockFactory;
 use pocketmine\nbt\tag\NamedTag;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -78,7 +79,7 @@ class Item implements ItemIds, \JsonSerializable {
 		$this->meta = $meta !== -1 ? $meta & 0xffff : -1;
 		$this->count = $count;
 		$this->name = $name;
-		if(!isset($this->block) and $this->id <= 0xff and isset(Block::$list[$this->id])){
+		if(!isset($this->block) and $this->id <= 0xff and BlockFactory::isRegistered($this->id)){
 			$this->block = Block::get($this->id, $this->meta);
 			$this->name = $this->block->getName();
 		}
@@ -256,8 +257,8 @@ class Item implements ItemIds, \JsonSerializable {
 			self::$list[self::FIRE_CHARGE] = FireCharge::class;
 
 			for($i = 0; $i < 256; ++$i){
-				if(Block::$list[$i] !== null){
-					self::$list[$i] = Block::$list[$i];
+				if(BlockFactory::isRegistered($i)){
+					self::$list[$i] = BlockFactory::get($i);
 				}
 			}
 		}
