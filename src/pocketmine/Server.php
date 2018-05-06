@@ -22,6 +22,7 @@
 namespace pocketmine;
 
 use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
 use pocketmine\command\CommandReader;
 use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
@@ -474,7 +475,7 @@ class Server {
 			Entity::init();
 			Tile::init();
 			InventoryType::init();
-			Block::init();
+			BlockFactory::init();
 			Enchantment::init();
 			Item::init();
 			Biome::init();

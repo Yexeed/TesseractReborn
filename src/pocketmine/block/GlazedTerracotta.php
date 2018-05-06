@@ -13,7 +13,8 @@ use pocketmine\item\Item;
 use pocketmine\item\Tool;
 use pocketmine\Player;
 
-class GlazedTerracota extends Solid{
+class GlazedTerracotta extends Solid{
+
 
     public function getHardness() : float{
         return 1.4;

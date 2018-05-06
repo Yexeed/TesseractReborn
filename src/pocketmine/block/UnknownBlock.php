@@ -23,7 +23,14 @@ namespace pocketmine\block;
 
 class UnknownBlock extends Solid {
 
-	/**
+    protected $id;
+
+    public function __construct(int $id)
+    {
+        $this->id = $id;
+    }
+
+    /**
 	 * @return bool
 	 */
 	public function isSolid(){
