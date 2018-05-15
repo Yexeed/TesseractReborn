@@ -76,6 +76,7 @@ namespace pocketmine {
 	use pocketmine\utils\Utils;
 	use pocketmine\wizard\Installer;
 
+    const NAME = "PocketMine-MP";
 	const VERSION = "1.2.1";
 	const API_VERSION = "3.0.1";
 	const CODENAME = "Sapphire";
@@ -145,6 +146,7 @@ namespace pocketmine {
 	date_default_timezone_set("UTC");
 
 	$logger = new MainLogger(\pocketmine\DATA . "server.log", \pocketmine\ANSI);
+	$logger->registerStatic();
 
 	if(!ini_get("date.timezone")){
 		if(($timezone = detect_system_timezone()) and date_default_timezone_set($timezone)){
@@ -402,10 +404,10 @@ namespace pocketmine {
 
 	$errors = 0;
 
-	if(php_sapi_name() !== "cli"){
-		$logger->critical("You must run PocketMine-MP using the CLI.");
-		++$errors;
-	}
+    if(php_sapi_name() !== "cli"){
+        $logger->critical("You must run " . \pocketmine\NAME . " using the CLI.");
+        ++$errors;
+    }
 
 	if(!extension_loaded("sockets")){
 		$logger->critical("Unable to find the Socket extension.");
@@ -419,10 +421,6 @@ namespace pocketmine {
 	if(version_compare($pthreads_version, "3.1.5") < 0){
 		$logger->critical("pthreads >= 3.1.5 is required, while you have $pthreads_version.");
 		++$errors;
-	}
-
-	if(!extension_loaded("uopz")){
-		//$logger->notice("Couldn't find the uopz extension. Some functions may be limited");
 	}
 
 	if(extension_loaded("pocketmine")){
