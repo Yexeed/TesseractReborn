@@ -45,7 +45,8 @@ class Block extends Position implements BlockIds, Metadatable {
 	public static $list = null;
 	/** @var \SplFixedArray */
 	public static $fullList = null;
-
+    /** @var \SplFixedArray */
+    public static $diffusesSkyLight = null;
 	/** @var \SplFixedArray */
 	public static $light = null;
 	/** @var \SplFixedArray */
@@ -79,6 +80,7 @@ class Block extends Position implements BlockIds, Metadatable {
 			self::$solid = new \SplFixedArray(256);
 			self::$hardness = new \SplFixedArray(256);
 			self::$transparent = new \SplFixedArray(256);
+            self::$diffusesSkyLight = new \SplFixedArray(256);
 			self::$list[self::AIR] = Air::class;
 			self::$list[self::STONE] = Stone::class;
 			self::$list[self::GRASS] = Grass::class;
