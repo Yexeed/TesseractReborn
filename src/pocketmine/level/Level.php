@@ -765,7 +765,17 @@ class Level implements ChunkManager, Metadatable {
 
 		return true;
 	}
-	/**
+
+
+    public function startUpdatingLight()
+    {
+        foreach ($this->getChunks() as $chunk) {
+            $this->getServer()->getScheduler()->scheduleAsyncTask(new LightPopulationTask($this, $chunk));
+        }
+    }
+
+
+    /**
 	 * @param int $x
 	 * @param int $z
 	 */
@@ -2125,44 +2135,33 @@ class Level implements ChunkManager, Metadatable {
 	 * @param int $z
 	 */
 	public function updateBlockSkyLight(int $x, int $y, int $z){
-		$this->timings->doBlockSkyLightUpdates->startTiming();
-
+        $this->timings->doBlockSkyLightUpdates->startTiming();
         $oldHeightMap = $this->getHeightMap($x, $z);
         $sourceId = $this->getBlockIdAt($x, $y, $z);
-
         $yPlusOne = $y + 1;
-
-        if($yPlusOne === $oldHeightMap){ //Block changed directly beneath the heightmap. Check if a block was removed or changed to a different light-filter.
+        if ($yPlusOne === $oldHeightMap) {
             $newHeightMap = $this->getChunk($x >> 4, $z >> 4)->recalculateHeightMapColumn($x & 0x0f, $z & 0x0f);
-        }elseif($yPlusOne > $oldHeightMap){ //Block changed above the heightmap.
-            if(Block::$lightFilter[$sourceId] > 1){
-                $this->setHeightMap($x, $z, $yPlusOne);
-                $newHeightMap = $yPlusOne;
-            }else{ //Block changed which has no effect on direct sky light, for example placing or removing glass.
-                $this->timings->doBlockSkyLightUpdates->stopTiming();
-                return;
-            }
-        }else{ //Block changed below heightmap
+        } elseif ($yPlusOne > $oldHeightMap) {
+            $this->setHeightMap($x, $z, $yPlusOne);
+            $newHeightMap = $yPlusOne;
+        } else {
             $newHeightMap = $oldHeightMap;
         }
-
         $update = new SkyLightUpdate($this);
-
-        if($newHeightMap > $oldHeightMap){ //Heightmap increase, block placed, remove sky light
-            for($i = $y; $i >= $oldHeightMap; --$i){
-                $update->setAndUpdateLight($x, $i, $z, 0); //Remove all light beneath, adjacent recalculation will handle the rest.
+        if ($newHeightMap > $oldHeightMap) {
+            for ($i = $y; $i >= $oldHeightMap; --$i) {
+                $update->setAndUpdateLight($x, $i, $z, 0);
             }
-        }elseif($newHeightMap < $oldHeightMap){ //Heightmap decrease, block changed or removed, add sky light
-            for($i = $y; $i >= $newHeightMap; --$i){
+        } elseif ($newHeightMap < $oldHeightMap) {
+            for ($i = $y; $i >= $newHeightMap; --$i) {
                 $update->setAndUpdateLight($x, $i, $z, 15);
             }
-        }else{ //No heightmap change, block changed "underground"
+        } else {
             $update->setAndUpdateLight($x, $y, $z, max(0, $this->getHighestAdjacentBlockSkyLight($x, $y, $z) - Block::$lightFilter[$sourceId]));
         }
-
         $update->execute();
-		$this->timings->doBlockSkyLightUpdates->stopTiming();
-	}
+        $this->timings->doBlockSkyLightUpdates->stopTiming();
+    }
 
 	/**
 	 * @param int $x
@@ -2195,23 +2194,23 @@ class Level implements ChunkManager, Metadatable {
 		return $this->getChunk($x >> 4, $z >> 4, true)->getBlockId($x & 0x0f, $y & Level::Y_MASK, $z & 0x0f);
 	}
 
-	/**
-	 * @param int $x
-	 * @param int $y
-	 * @param int $z
-	 *
-	 * @return int
-	 */
-	public function getHighestAdjacentBlockLight(int $x, int $y, int $z) : int{
-		return max([
-			$this->getBlockLightAt($x + 1, $y, $z),
-			$this->getBlockLightAt($x - 1, $y, $z),
-			$this->getBlockLightAt($x, $y + 1, $z),
-			$this->getBlockLightAt($x, $y - 1, $z),
-			$this->getBlockLightAt($x, $y, $z + 1),
-			$this->getBlockLightAt($x, $y, $z - 1)
-		]);
-	}
+    /**
+     * @param int $x
+     * @param int $y
+     * @param int $z
+     *
+     * @return int
+     */
+    public function getHighestAdjacentBlockLight(int $x, int $y, int $z) : int{
+        return max([
+            $this->getBlockLightAt($x + 1, $y, $z),
+            $this->getBlockLightAt($x - 1, $y, $z),
+            $this->getBlockLightAt($x, $y + 1, $z),
+            $this->getBlockLightAt($x, $y - 1, $z),
+            $this->getBlockLightAt($x, $y, $z + 1),
+            $this->getBlockLightAt($x, $y, $z - 1)
+        ]);
+    }
 
     /**
      * Returns the highest block light level available in the positions adjacent to the specified block coordinates.
@@ -2232,6 +2231,42 @@ class Level implements ChunkManager, Metadatable {
             $this->getBlockSkyLightAt($x, $y, $z - 1)
         ]);
     }
+
+    private function computeRemoveBlockLight(int $x, int $y, int $z, int $currentLight, \SplQueue $queue, \SplQueue $spreadQueue, array &$visited, array &$spreadVisited)
+    {
+        if ($y < 0) return;
+        $current = $this->getBlockLightAt($x, $y, $z);
+        if ($current !== 0 and $current < $currentLight) {
+            $this->setBlockLightAt($x, $y, $z, 0);
+            if (!isset($visited[$index = Level::blockHash($x, $y, $z)])) {
+                $visited[$index] = true;
+                if ($current > 1) {
+                    $queue->enqueue([new Vector3($x, $y, $z), $current]);
+                }
+            }
+        } elseif ($current >= $currentLight) {
+            if (!isset($spreadVisited[$index = Level::blockHash($x, $y, $z)])) {
+                $spreadVisited[$index] = true;
+                $spreadQueue->enqueue(new Vector3($x, $y, $z));
+            }
+        }
+    }
+    private function computeSpreadBlockLight(int $x, int $y, int $z, int $currentLight, \SplQueue $queue, array &$visited)
+    {
+        if ($y < 0) return;
+        $current = $this->getBlockLightAt($x, $y, $z);
+        $currentLight -= Block::$lightFilter[$this->getBlockIdAt($x, $y, $z)];
+        if ($current < $currentLight) {
+            $this->setBlockLightAt($x, $y, $z, $currentLight);
+            if (!isset($visited[$index = Level::blockHash($x, $y, $z)])) {
+                $visited[$index] = true;
+                if ($currentLight > 1) {
+                    $queue->enqueue(new Vector3($x, $y, $z));
+                }
+            }
+        }
+    }
+
 	/**
 	 * Gets the raw block light level
 	 *

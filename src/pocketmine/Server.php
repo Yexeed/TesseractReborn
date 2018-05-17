@@ -882,6 +882,8 @@ class Server {
 
 		$level->initLevel();
 
+        $level->startUpdatingLight();
+
 		$this->getPluginManager()->callEvent(new LevelLoadEvent($level));
 
 		$level->setTickRate($this->baseTickRate);
