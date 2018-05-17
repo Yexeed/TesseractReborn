@@ -608,7 +608,6 @@ class Human extends Creature implements ProjectileSource, InventoryHolder {
 
     /**
      * @param Player $player
-     * @throws \ReflectionException
      */
 	public function spawnTo(Player $player){
 		if(strlen($this->skin) < 64 * 32 * 4){

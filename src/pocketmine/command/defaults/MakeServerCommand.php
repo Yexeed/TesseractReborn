@@ -4,7 +4,7 @@ namespace pocketmine\command\defaults;
 
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use pocketmine\network\mcpe\protocol\Info;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\TextFormat;
 
 class MakeServerCommand extends VanillaCommand {
@@ -47,7 +47,7 @@ class MakeServerCommand extends VanillaCommand {
             "api" => $server->getApiVersion(),
             "minecraft" => $server->getVersion(),
             "creationDate" => time(),
-            "protocol" => Info::CURRENT_PROTOCOL
+            "protocol" => ProtocolInfo::CURRENT_PROTOCOL
         ];
         $stub = '<?php require_once("phar://". __FILE__ ."/src/pocketmine/PocketMine.php");  __HALT_COMPILER();';
         $filePath = realpath(\pocketmine\PATH) . DIRECTORY_SEPARATOR;

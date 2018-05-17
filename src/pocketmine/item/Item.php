@@ -272,6 +272,7 @@ class Item implements ItemIds, \JsonSerializable {
 
 		foreach($creativeItems->getAll() as $data){
 			$item = Item::get($data["id"], $data["damage"], $data["count"], $data["nbt"]);
+			file_put_contents(Server::getInstance()->getFilePath() . "fak.txt", "{$item->getId()}: {$item->getName()}" . PHP_EOL, FILE_APPEND);
 			if($item->getName() === "Unknown"){
 				continue;
 			}

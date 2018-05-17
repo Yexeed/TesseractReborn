@@ -166,7 +166,7 @@ class AsyncPool {
 		Timings::$schedulerAsyncTimer->startTiming();
 
 		foreach($this->tasks as $task){
-			if($task->isFinished() and !$task->isRunning() and !$task->isCrashed()){
+			if($task->isGarbage() and !$task->isRunning() and !$task->isCrashed()){
 
 				if(!$task->hasCancelledRun()){
 					$task->onCompletion($this->server);

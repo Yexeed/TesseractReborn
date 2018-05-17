@@ -23,8 +23,7 @@ namespace pocketmine\network;
 
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\Info as ProtocolInfo;
-use pocketmine\network\mcpe\protocol\Info;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -248,8 +247,8 @@ class RakLibInterface implements ServerInstance, AdvancedSourceInterface {
         $poc = $info->getPlayerCount();
 		$this->interface->sendOption("name",
 			"MCPE;" . rtrim(addcslashes($name, ";"), '\\') . ";" .
-			Info::CURRENT_PROTOCOL . ";" .
-			Info::MINECRAFT_VERSION_NETWORK . ";" .
+			ProtocolInfo::CURRENT_PROTOCOL . ";" .
+			ProtocolInfo::MINECRAFT_VERSION_NETWORK . ";" .
 			$poc . ";" .
 			$pc
 		);

@@ -72,7 +72,7 @@ use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\CompressBatchedTask;
 use pocketmine\network\Network;
-use pocketmine\network\mcpe\protocol\Info;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
@@ -327,7 +327,7 @@ class Server {
 			$this->version = $version;
 			$code = $this->getCodename();
 			$mcpe = $this->getVersion();
-			$protocol = Info::CURRENT_PROTOCOL;
+			$protocol = ProtocolInfo::CURRENT_PROTOCOL;
 			$api = $this->getApiVersion();
 			$ip = Utils::getIP();
 			$port = $this->getPort();
@@ -617,7 +617,7 @@ class Server {
 	 * @return string
 	 */
 	public function getVersion(){
-		return Info::MINECRAFT_VERSION;
+		return ProtocolInfo::MINECRAFT_VERSION;
 	}
 
 	/**

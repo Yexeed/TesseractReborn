@@ -19,29 +19,19 @@
  *
 */
 
-namespace pocketmine\network\mcpe\protocol;
+declare(strict_types=1);
 
-#include <rules/DataPacket.h>
+namespace pocketmine;
 
+abstract class Collectable extends \Threaded implements \Collectable{
 
-class PlayerInputPacket extends DataPacket {
+    private $isGarbage = false;
 
-	const NETWORK_ID = ProtocolInfo::PLAYER_INPUT_PACKET;
+    public function isGarbage() : bool{
+        return $this->isGarbage;
+    }
 
-	public $motionX;
-	public $motionY;
-	public $unknownBool1;
-	public $unknownBool2;
-
-	public function decode(){
-		$this->motionX = $this->getLFloat();
-		$this->motionY = $this->getLFloat();
-		$this->unknownBool1 = $this->getBool();
-		$this->unknownBool2 = $this->getBool();
-	}
-
-	public function encode(){
-
-	}
-
+    public function setGarbage(){
+        $this->isGarbage = true;
+    }
 }

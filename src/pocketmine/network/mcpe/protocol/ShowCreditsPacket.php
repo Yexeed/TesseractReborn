@@ -25,7 +25,7 @@ namespace pocketmine\network\mcpe\protocol;
 
 class ShowCreditsPacket extends DataPacket {
 
-	const NETWORK_ID = Info::SHOW_CREDITS_PACKET;
+	const NETWORK_ID = ProtocolInfo::SHOW_CREDITS_PACKET;
 
 	const STATUS_START_CREDITS = 0;
 	const STATUS_END_CREDITS = 1;

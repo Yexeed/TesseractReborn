@@ -22,7 +22,7 @@
 namespace pocketmine\network\mcpe\protocol;
 
 class ResourcePackStackPacket extends DataPacket{
-	const NETWORK_ID = Info::RESOURCE_PACK_STACK_PACKET;
+	const NETWORK_ID = ProtocolInfo::RESOURCE_PACK_STACK_PACKET;
 
 	public $mustAccept = false;
 
