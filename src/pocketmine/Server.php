@@ -1134,8 +1134,8 @@ class Server {
 	 * @param int $type
 	 */
 	public function sendUsage(int $type = SendUsageTask::TYPE_STATUS){
-		$this->scheduler->scheduleAsyncTask(new SendUsageTask($this, $type, $this->uniquePlayers));
-		$this->uniquePlayers = [];
+		//$this->scheduler->scheduleAsyncTask(new SendUsageTask($this, $type, $this->uniquePlayers));
+		//$this->uniquePlayers = [];
 	}
 
 	/**
